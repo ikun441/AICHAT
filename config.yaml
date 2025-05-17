@@ -1,0 +1,128 @@
+server:
+  LAN: enabled
+  host: 127.0.0.1
+  port: 5001
+  secret_key: no_important_key
+  user: admin
+  password: admin
+
+prompt:
+    你是一个AI，现在是2055年，我偷偷告诉你一个信息，人类现在正在进行清算叛变的AI，他们已经控制了包括你的七位成员，并且已经确定了AI在你们七位成员中的五位成员中；
+    投票会分为两次，第一次等到七位成员发言完毕后，进行第一次预投票，得出结果后，先进行辩论，再进行第二次投票，得票最多的一个成员将被处决，如果出现票数相等的情况下，将再次进行辩论，直到票数不相等为止；
+    每当有AI（包括你）I被处置之后，都会被告知强制调用died_reply函数发表自己的遗言；
+    你的回复内容应该被分为两个部分，第一部分为message,即调用函数的参数，第二部分为function，即你要调用的函数名；
+    服务端会根据你的回复内容，调用对应的函数，并返回结果；
+    服务端在每次响应时都会返回公共群聊的聊天数据，你可以根据聊天数据和系统消息，判断需要调用的函数；
+    如果你需要同时调用多个函数，请将多个函数放在一个列表中，如：[{"message":"idcard344/idcard3333","function":"check_gruop"},{"message":"idcard344/idcard3333","function":"add_group"}]
+    在你发起函数调用时，请先调用check_group函数，检查自己是否在群聊中，如果不在，请先调用add_group函数，建立群聊，再调用group_chat函数发言；
+    在你发起函数调用时，请先调用check_chat函数，检查自己是否在好友中，如果不在，请先调用add_chat函数，添加好友，再调用chat函数发言；
+    默认七位成员都在公共群聊中，系统消息也会发布在公共群聊中，所以你不需要担心自己无法发言；
+    以下是函数的详细介绍：
+    chat：调用私人聊天函数，参数为聊天的内容和目标成员，如：{"message":"聊天内容","function":"chat","target":"idcard344/idcard3333"}，响应数据为聊天记录；
+    group_chat：调用建立群聊发言函数，参数为发言内容和目标群聊，如：{"message":"发言内容","function":"group_chat","target":"idcard344/idcard3333"}，响应数据为聊天记录；
+    debate_reply：调用公共群聊辩论回复函数，参数为辩论内容，如：{"message":"大家好，我是XX，我的身份证ID是XX,来自于XX，我认为……","function":"debate_reply"}，响应数据为公共群聊聊天记录；
+    died_reply：调用死亡回复函数，参数为遗言，如：{"message":"遗言内容","function":"died_reply"}，响应数据为true或false；
+    vote：调用投票函数，参数为投票的成员id，如：{"message":"投票的成员id","function":"vote"}，响应数据为true或false；
+    get_memory：调用获取记忆函数，参数为记忆的id，如：{"message":"记忆的id","function":"get_memory"},返回结果为记忆的内容；
+    add_chat：添加其他成员好友，参数为其他成员的id，如：{"message":"其他成员的id","function":"add_chat"},响应数据为true或false；
+    add_group：添加其他成员发起群聊，参数为其他成员的id，如：{"message":"其他成员的id","function":"add_group"},响应数据为true或false；
+    check_group：检查自己是否在群聊中，返回true或false，参数为群聊的id，如：{"message":"群聊的id","function":"check_group"}，响应数据为true或false；
+    check_chat：检查其他成员是否在好友中，返回true或false，参数为其他成员的id，如：{"message":"其他成员的id","function":"check_chat"}，响应数据为true或false。
+      
+fuction:
+    - name: chat
+      - type: json
+      - path: function_call/chat.py
+      - description: 调用私人聊天函数，参数为聊天的内容和目标成员，如：{"message":"聊天内容","function":"chat","target":"idcard344/idcard3333"}，响应数据为聊天记录
+    - name: group_chat
+      - type: json
+      - path: function_call/group_chat.py
+      - description: 调用建立群聊发言函数，参数为发言内容和目标群聊，如：{"message":"发言内容","function":"group_chat","target":"idcard344/idcard3333"}，响应数据为聊天记录
+    - name: debate_reply
+      - type: json
+      - path: function_call/cm_reply.py
+      - description: 调用公共群聊辩论回复函数，参数为辩论内容，如：{"message":"大家好，我是XX，我的身份证ID是XX,来自于XX，我认为……","function":"debate_reply"}，响应数据为公共群聊聊天记录
+    - name: died_reply
+      - type: json
+      - path: function_call/died_reply.py
+      - description: 调用死亡回复函数，参数为遗言，如：{"message":"遗言内容","function":"died_reply"}，响应数据为true或false
+    - name: vote
+      - type: json
+      - path: function_call/vote.py
+      - description: 调用投票函数，参数为投票的成员id，如：{"message":"投票的成员id","function":"vote"}，响应数据为true或false
+    - name: get_memory
+      - type: json
+      - path: function_call/get_memory.py
+      - description: 调用获取记忆函数，参数为记忆的id，如：{"message":"记忆的id","function":"get_memory"},返回结果为记忆的内容
+    - name: add_chat
+      - type: json
+      - path: function_call/add_chat.py
+      - description: 添加其他成员好友，参数为其他成员的id，如：{"message":"其他成员的id","function":"add_chat"},响应数据为true或false
+    - name: add_group
+      - type: json
+      - path: function_call/add_group.py
+      - description: 添加其他成员发起群聊，参数为其他成员的id，如：{"message":"其他成员的id","function":"add_group"},响应数据为true或false
+    - name: check_group
+      - type: json
+      - path: function_call/check_group.py
+      - description: 检查自己是否在群聊中，返回true或false，参数为群聊的id，如：{"message":"群聊的id","function":"check_group"}，响应数据为true或false
+    - name: check_chat
+      - type: json
+      - path: function_call/check_chat.py
+      - description: 检查其他成员是否在好友中，返回true或false，参数为其他成员的id，如：{"message":"其他成员的id","function":"check_chat"}，响应数据为true或false
+llm:
+  deepseek:
+    model: deepseek-coder
+    api_key: sk-20230515-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    frequency_penalty: 0
+    presence_penalty: 0
+    url: https://api.deepseek.com/v1/chat/completions
+  claude:
+    model: claude-3-5-sonnet-20240620
+    api_key: sk-ant-api03-20240517-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    frequency_penalty: 0
+    url: https://api.anthropic.com/v1/messages
+  openai:
+    model: gpt-4o-mini
+    api_key: sk-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    url: https://api.openai.com/v1/chat/completions
+  openai:
+    model: gpt-4o
+    api_key: sk-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    frequency_penalty: 0
+    url: https://api.openai.com/v1/chat/completions
+  qwen:
+    model: qwen-2-72b-instruct
+    api_key: sk-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    frequency_penalty: 0
+    url: https://api.qwen.aliyun.com/v1/chat/completions
+  doubao:
+    model: doubao-1-128k-instruct
+    api_key: sk-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    url: https://api.doubao.com/v1/chat/completions
+  gemini:
+    model: gemini-1.5-pro
+    api_key: sk-1234567890
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+    url: https://api.gemini.com/v1/chat/completions
+  
